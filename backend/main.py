@@ -1,4 +1,5 @@
 import os
+import ssl
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +8,11 @@ from typing import List, Dict, Optional
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Create SSL context that works in restricted environments
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 app = FastAPI(title="Fastino API Test Server")
 
@@ -73,7 +79,7 @@ async def health():
 
 @app.post("/register")
 async def register_user(request: RegisterUserRequest):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
         try:
             response = await client.post(
                 f"{FASTINO_BASE_URL}/register",
@@ -95,7 +101,7 @@ async def register_user(request: RegisterUserRequest):
 
 @app.get("/summary")
 async def get_summary(user_id: str, max_chars: int = 500):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
         try:
             response = await client.get(
                 f"{FASTINO_BASE_URL}/summary",
@@ -112,7 +118,7 @@ async def get_summary(user_id: str, max_chars: int = 500):
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
         try:
             # Get relevant chunks
             chunks_response = await client.post(
@@ -149,7 +155,7 @@ async def chat(request: ChatRequest):
 
 @app.post("/chunks")
 async def get_chunks(request: ChunksRequest):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
         try:
             response = await client.post(
                 f"{FASTINO_BASE_URL}/chunks",
@@ -171,7 +177,7 @@ async def get_chunks(request: ChunksRequest):
 
 @app.post("/ingest")
 async def ingest_data(request: IngestRequest):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
         try:
             response = await client.post(
                 f"{FASTINO_BASE_URL}/ingest",
@@ -191,7 +197,7 @@ async def ingest_data(request: IngestRequest):
 
 @app.post("/query")
 async def query_knowledge(request: QueryRequest):
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(verify=False) as client:
         try:
             response = await client.post(
                 f"{FASTINO_BASE_URL}/query",
