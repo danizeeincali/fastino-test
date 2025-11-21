@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fastino API Test Page</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #4f46e5;
+            margin-top: 30px;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 100px;
+            font-family: monospace;
+        }
+        button {
+            background: #4f46e5;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .result.error {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: #dc2626;
+        }
+        .result.success {
+            background: #dcfce7;
+            border-color: #86efac;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .status.connected {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .status.disconnected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .config-bar {
+            background: #1e1b4b;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .config-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+        .config-bar label {
+            color: white;
+            margin: 0;
+        }
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Fastino Pioneer API Test Page</h1>
+
+    <div class="config-bar">
+        <label for="apiUrl">Backend URL:</label>
+        <input type="text" id="apiUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+        <button onclick="checkHealth()">Check Connection</button>
+        <span id="connectionStatus" class="status disconnected">Not Connected</span>
+    </div>
+
+    <div class="grid">
+        <!-- Register User Section -->
+        <div class="section">
+            <h2>1. Register User</h2>
+            <div class="form-group">
+                <label for="regEmail">Email *</label>
+                <input type="email" id="regEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="regName">Name</label>
+                <input type="text" id="regName" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label for="regTimezone">Timezone</label>
+                <select id="regTimezone">
+                    <option value="UTC">UTC</option>
+                    <option value="America/New_York">America/New_York</option>
+                    <option value="America/Los_Angeles">America/Los_Angeles</option>
+                    <option value="Europe/London">Europe/London</option>
+                    <option value="Asia/Tokyo">Asia/Tokyo</option>
+                </select>
+            </div>
+            <button onclick="registerUser()">Register User</button>
+            <div id="registerResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Get Summary Section -->
+        <div class="section">
+            <h2>2. Get User Summary</h2>
+            <div class="form-group">
+                <label for="summaryEmail">User ID (Email) *</label>
+                <input type="email" id="summaryEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="maxChars">Max Characters</label>
+                <input type="number" id="maxChars" value="500" min="100" max="2000">
+            </div>
+            <button onclick="getSummary()">Get Summary</button>
+            <div id="summaryResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="section">
+            <h2>3. Chat / Get Context</h2>
+            <div class="form-group">
+                <label for="chatEmail">User ID (Email) *</label>
+                <input type="email" id="chatEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="chatMessage">Message *</label>
+                <textarea id="chatMessage" placeholder="What should I eat for dinner?"></textarea>
+            </div>
+            <button onclick="sendChat()">Send Chat</button>
+            <div id="chatResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Get Chunks Section -->
+        <div class="section">
+            <h2>4. Get Context Chunks</h2>
+            <div class="form-group">
+                <label for="chunksEmail">User ID (Email) *</label>
+                <input type="email" id="chunksEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="chunksK">Number of Chunks (k)</label>
+                <input type="number" id="chunksK" value="5" min="1" max="20">
+            </div>
+            <div class="form-group">
+                <label for="chunksSimilarity">Similarity Threshold</label>
+                <input type="number" id="chunksSimilarity" value="0.25" min="0" max="1" step="0.05">
+            </div>
+            <button onclick="getChunks()">Get Chunks</button>
+            <div id="chunksResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Ingest Data Section -->
+        <div class="section">
+            <h2>5. Ingest Conversation Data</h2>
+            <div class="form-group">
+                <label for="ingestEmail">User ID (Email) *</label>
+                <input type="email" id="ingestEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="ingestHistory">Message History (JSON array)</label>
+                <textarea id="ingestHistory" placeholder='[{"role": "user", "content": "I love pizza"}, {"role": "assistant", "content": "Great choice!"}]'>[{"role": "user", "content": "I love Italian food, especially pasta and pizza"}, {"role": "assistant", "content": "That's great! Italian cuisine is delicious."}]</textarea>
+            </div>
+            <button onclick="ingestData()">Ingest Data</button>
+            <div id="ingestResult" class="result" style="display:none;"></div>
+        </div>
+
+        <!-- Query Knowledge Section -->
+        <div class="section">
+            <h2>6. Query User Knowledge</h2>
+            <div class="form-group">
+                <label for="queryEmail">User ID (Email) *</label>
+                <input type="email" id="queryEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-group">
+                <label for="queryText">Query *</label>
+                <textarea id="queryText" placeholder="What are this user's food preferences?">What does this user like to eat?</textarea>
+            </div>
+            <button onclick="queryKnowledge()">Query</button>
+            <div id="queryResult" class="result" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function getApiUrl() {
+            return document.getElementById('apiUrl').value.replace(/\/$/, '');
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const url = `${getApiUrl()}${endpoint}`;
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+            const response = await fetch(url, options);
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.detail || `HTTP ${response.status}`);
+            }
+            return data;
+        }
+
+        function showResult(elementId, data, isError = false) {
+            const el = document.getElementById(elementId);
+            el.style.display = 'block';
+            el.className = `result ${isError ? 'error' : 'success'}`;
+            el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+        }
+
+        async function checkHealth() {
+            const statusEl = document.getElementById('connectionStatus');
+            try {
+                const data = await apiCall('/health');
+                statusEl.textContent = data.api_key_configured ? 'Connected (API Key OK)' : 'Connected (No API Key)';
+                statusEl.className = 'status connected';
+            } catch (e) {
+                statusEl.textContent = 'Connection Failed';
+                statusEl.className = 'status disconnected';
+            }
+        }
+
+        async function registerUser() {
+            try {
+                const data = await apiCall('/register', 'POST', {
+                    email: document.getElementById('regEmail').value,
+                    name: document.getElementById('regName').value,
+                    timezone: document.getElementById('regTimezone').value
+                });
+                showResult('registerResult', data);
+            } catch (e) {
+                showResult('registerResult', e.message, true);
+            }
+        }
+
+        async function getSummary() {
+            try {
+                const email = document.getElementById('summaryEmail').value;
+                const maxChars = document.getElementById('maxChars').value;
+                const data = await apiCall(`/summary?user_id=${encodeURIComponent(email)}&max_chars=${maxChars}`);
+                showResult('summaryResult', data);
+            } catch (e) {
+                showResult('summaryResult', e.message, true);
+            }
+        }
+
+        async function sendChat() {
+            try {
+                const data = await apiCall('/chat', 'POST', {
+                    user_id: document.getElementById('chatEmail').value,
+                    message: document.getElementById('chatMessage').value,
+                    conversation_history: []
+                });
+                showResult('chatResult', data);
+            } catch (e) {
+                showResult('chatResult', e.message, true);
+            }
+        }
+
+        async function getChunks() {
+            try {
+                const data = await apiCall('/chunks', 'POST', {
+                    user_id: document.getElementById('chunksEmail').value,
+                    history: [],
+                    k: parseInt(document.getElementById('chunksK').value),
+                    similarity_threshold: parseFloat(document.getElementById('chunksSimilarity').value)
+                });
+                showResult('chunksResult', data);
+            } catch (e) {
+                showResult('chunksResult', e.message, true);
+            }
+        }
+
+        async function ingestData() {
+            try {
+                const historyText = document.getElementById('ingestHistory').value;
+                let history;
+                try {
+                    history = JSON.parse(historyText);
+                } catch {
+                    throw new Error('Invalid JSON in message history');
+                }
+                const data = await apiCall('/ingest', 'POST', {
+                    user_id: document.getElementById('ingestEmail').value,
+                    message_history: history
+                });
+                showResult('ingestResult', data);
+            } catch (e) {
+                showResult('ingestResult', e.message, true);
+            }
+        }
+
+        async function queryKnowledge() {
+            try {
+                const data = await apiCall('/query', 'POST', {
+                    user_id: document.getElementById('queryEmail').value,
+                    query: document.getElementById('queryText').value
+                });
+                showResult('queryResult', data);
+            } catch (e) {
+                showResult('queryResult', e.message, true);
+            }
+        }
+
+        // Check connection on page load
+        window.onload = checkHealth;
+    </script>
+</body>
+</html>
