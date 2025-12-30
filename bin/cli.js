@@ -5,6 +5,7 @@ import chalk from 'chalk';
 import { installSuite } from '../src/installer.js';
 import { checkConflicts } from '../src/utils/conflicts.js';
 import { updateSuite } from '../src/updater.js';
+import { syncUpstream, checkUpstreamVersions } from '../src/sync-upstream.js';
 
 const program = new Command();
 
@@ -65,6 +66,22 @@ program
     console.log(chalk.blue('\n🗑️  Uninstalling Danizee Claude Suite\n'));
     // Uninstall logic here
     console.log(chalk.green('✓ Uninstalled successfully\n'));
+  });
+
+program
+  .command('sync-upstream')
+  .description('Sync with latest versions from upstream repositories (claude-flow, compound-engineering, etc.)')
+  .option('--dry-run', 'Check for updates without making changes')
+  .option('-v, --verbose', 'Show detailed version information')
+  .action(async (options) => {
+    await syncUpstream(options);
+  });
+
+program
+  .command('versions')
+  .description('Check current vs latest upstream versions')
+  .action(async () => {
+    await checkUpstreamVersions();
   });
 
 program.parse();

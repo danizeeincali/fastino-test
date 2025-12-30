@@ -59,6 +59,12 @@ npx danizee-claude-suite check
 # Update to latest
 npx danizee-claude-suite update
 
+# Sync with upstream repos (claude-flow, compound-engineering, etc.)
+npx danizee-claude-suite sync-upstream
+
+# Check upstream versions
+npx danizee-claude-suite versions
+
 # Uninstall
 npx danizee-claude-suite uninstall
 ```
@@ -74,7 +80,36 @@ npx danizee-claude-suite init --skip-mcp
 
 # Preview changes
 npx danizee-claude-suite init --dry-run
+
+# Check for upstream updates without applying
+npx danizee-claude-suite sync-upstream --dry-run
+
+# Verbose sync output
+npx danizee-claude-suite sync-upstream --verbose
 ```
+
+## Keeping Up to Date
+
+This suite pulls from three upstream sources:
+- **claude-flow** (npm) - `ruvnet/claude-flow`
+- **compound-engineering** (GitHub) - `EveryInc/compound-engineering-plugin`
+- **frontend-design** (marketplace) - Anthropic plugins
+
+### Sync with upstream
+
+```bash
+# Check what's new
+npx danizee-claude-suite versions
+
+# Pull latest and update templates
+npx danizee-claude-suite sync-upstream
+```
+
+This will:
+1. Check latest versions from npm/GitHub
+2. Update command templates if APIs changed
+3. Regenerate WORKFLOW-SHORTCUTS.md
+4. Track versions in `.upstream-versions.json`
 
 ## Conflict Prevention
 
